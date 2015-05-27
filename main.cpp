@@ -1,4 +1,8 @@
 #include <iostream>
+#include <sstream>
+#include <vector>
+#include <stdlib.h>
+#include "Constant.h"
 
 #include "FileSystem.h"
 
@@ -9,25 +13,97 @@ int main() {
 
     fs->Init();
 
-    fs->Create("chen.c");
+    string cmd;
+    vector<string> argv;
 
-    fs->Mkdir("chen");
+    cout << fs->Pwd() << " $: ";
 
-    fs->Cd("/chen/");
+    while (getline(cin, cmd))
+    {
+        stringstream ss(cmd);
+        string word;
+        while(ss >> word)
+        {
+            argv.push_back(word);
+        }
 
-    fs->Create("chen.c");
+        int argc = argv.size();
 
-    fs->Mkdir("chen");
+        switch (CMD_TABLE.at(argv[0]))
+        {
+            case CMD_ENUM::MKDIR : {
+                if (argc != 2) {cout << "Usage: mkdir dir_name" << endl; break;}
+                fs->Mkdir(argv[1].c_str());
+                break;
+            };
 
-    fs->Write("chen.c", "chenyixiao's filesystem");
+            case CMD_ENUM::RMDIR : {
+                if (argc != 2) {cout << "Usage: rmdir dir_name" << endl; break;}
+                fs->Rmdir(argv[1].c_str());
+                break;
+            };
 
-    fs->Read("chen.c");
+            case CMD_ENUM::CREATE : {
+                if (argc != 2) {cout << "Usage: create file_name" << endl; break;}
+                fs->Create(argv[1].c_str());
+                break;
+            };
 
-    fs->Ls();                  //打印当前目录下的所有文件
+            case CMD_ENUM::DELETE : {
+                if (argc != 2) {cout << "Usage: delete file_name" << endl; break;}
+                fs->Delete(argv[1].c_str());
+                break;
+            };
 
-    fs->PrintFileSystem();     // 打印整个文件系统的所有文件以及目录
+            case CMD_ENUM::READ : {
+                if (argc != 2) {cout << "Usage: read file_name" << endl; break;}
+                fs->Read(argv[1].c_str());
+                break;
+            };
 
-    fs->DestroyInstance();
+            case CMD_ENUM::WRITE : {
+                if (argc != 3) {cout << "Usage: write file_name content" << endl; break;}
+                fs->Write(argv[1].c_str(), argv[2].c_str());
+                break;
+            };
+
+            case CMD_ENUM::CD : {
+                if (argc != 2) {cout << "Usage: cd full_path" << endl; break;}
+                fs->Cd(argv[1].c_str());
+                break;
+            };
+
+            case CMD_ENUM::LS : {
+                if (argc != 1) {cout << "Usage: ls" << endl; break;}
+                fs->Ls();
+                break;
+            };
+
+            case CMD_ENUM::PWD : {
+                if (argc != 1) {cout << "Usage: pwd" << endl; break;}
+                fs->Pwd();
+                break;
+            };
+
+            case CMD_ENUM::PFS : {
+                if (argc != 1) {cout << "Usage: pfs" << endl; break;}
+                fs->PrintFileSystem();
+                break;
+            };
+
+            case CMD_ENUM::EXIT : {
+                if (argc != 1) {cout << "Usage: exit" << endl; break;}
+                fs->DestroyInstance();
+                exit(0);
+            };
+
+            default: { cout << "command not exist" << endl; break;}
+
+        }
+
+        argv.clear();
+        cout << fs->Pwd() << " $: ";
+    }
 
     return 0;
 }

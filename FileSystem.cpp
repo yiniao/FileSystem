@@ -6,7 +6,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <string>
 #include <algorithm>
 
 #include "Constant.h"
@@ -29,7 +28,6 @@ void FileSystem::Init() {
     inode_map_   = new (GetBlockPointer(2)) InodeMap();
 
     InitRootDir();
-
 }
 
 int FileSystem::Mkdir(const char *name) {
@@ -61,6 +59,36 @@ int FileSystem::Mkdir(const char *name) {
     return id;
 }
 
+int FileSystem::Rmdir(const char *name) {
+
+    string full_dir_name = pwd_ + name + "/";
+
+
+
+    for (auto iter = search_map_.begin(); iter != search_map_.end();)
+    {
+        auto map = *iter;
+        if (map.first.find(full_dir_name) == 0)
+        {
+            int inode_id = map.second;
+            Inode *inode = reinterpret_cast<Inode*>(GetInodeBlockPointer(inode_id));
+            if (inode->type_ == FILE_TYPE)
+            {
+                for (int j = 0; j < inode->size_; j++) {
+                    ReleaseDataBlock(inode->block_array_[j]);
+                }
+            }
+
+            ReleaseInode(inode_id);
+            search_map_.erase(iter++);
+        }
+        else {
+            iter++;
+        }
+    }
+
+    return 0;
+}
 
 
 int FileSystem::Create(const char *name) {
@@ -183,10 +211,17 @@ int FileSystem::Read(const char* name) {
 
 }
 
+
+
 void FileSystem::Delete(const char* name) {
     string full_name = pwd_ + name;
     int id = search_map_[full_name];
+    search_map_.erase(full_name);
 
+    Delete(id);
+}
+
+void FileSystem::Delete(int id) {
     int parent_dir_id = search_map_[pwd_];
 
     Inode* dir_inode = reinterpret_cast<Inode*>(GetInodeBlockPointer(parent_dir_id));
@@ -215,9 +250,7 @@ void FileSystem::Delete(const char* name) {
     }
 
     ReleaseInode(id);
-    search_map_.erase(full_name);
 }
-
 
 
 void FileSystem::Cd(const char *path) {
@@ -327,4 +360,6 @@ void FileSystem::PrintInodeMap() {
 }
 
 
-
+string FileSystem::Pwd() {
+    return pwd_;
+}

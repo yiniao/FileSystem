@@ -9,6 +9,7 @@
 #include <map>
 #include <string>
 
+
 using namespace std;
 
 class SuperBlock;
@@ -23,22 +24,27 @@ public:
 
     int Mkdir(const char* name);
 
+    int Rmdir(const char* name);
+
     int Create(const char* name);
 
-    int Write(const char* name, const char* buffer);
+    int Write(const char* name, const char* content);
 
     int Read(const char* name);
 
     void Delete(const char* name);
+    void Delete(int id);
 
     void Cd(const char* path);
 
     void Ls();
 
+    string Pwd();
+
     void PrintBitMap();
     void PrintFileSystem();
 
-    string    pwd_;
+
 
 private:
 
@@ -65,11 +71,8 @@ private:
     BlockMap* block_map_;
     InodeMap* inode_map_;
 
+    string    pwd_;
     map<string, int> search_map_;
-
-
-
-
 
 public:
     static FileSystem *GetInstance()
