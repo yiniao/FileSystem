@@ -1,5 +1,5 @@
 //
-// Created by yiniao on 2015/4/19.
+// Created by yiniao on 2015/5/20.
 //
 
 #include "FileSystem.h"
@@ -63,8 +63,6 @@ int FileSystem::Rmdir(const char *name) {
 
     string full_dir_name = pwd_ + name + "/";
 
-
-
     for (auto iter = search_map_.begin(); iter != search_map_.end();)
     {
         auto map = *iter;
@@ -78,7 +76,6 @@ int FileSystem::Rmdir(const char *name) {
                     ReleaseDataBlock(inode->block_array_[j]);
                 }
             }
-
             ReleaseInode(inode_id);
             search_map_.erase(iter++);
         }
@@ -93,8 +90,6 @@ int FileSystem::Rmdir(const char *name) {
 
 int FileSystem::Create(const char *name) {
     int parent_dir_id = search_map_[pwd_];
-
-
     string full_name = pwd_ + name;
 
     int id = ApplyInode();
@@ -108,12 +103,8 @@ int FileSystem::Create(const char *name) {
     Inode* dir_inode = reinterpret_cast<Inode*>(GetInodeBlockPointer(parent_dir_id));
     int dir_data_id = dir_inode->block_array_[0];
 
-
     Dir* dir = reinterpret_cast<Dir*>(GetDataBlockPointer(dir_data_id));
-
-
     dir->file_array_[dir->inode_num_] = id;
-
     (dir->inode_num_)++;
 
     search_map_.insert(pair<string, int>(full_name, id));
@@ -216,12 +207,7 @@ int FileSystem::Read(const char* name) {
 void FileSystem::Delete(const char* name) {
     string full_name = pwd_ + name;
     int id = search_map_[full_name];
-    search_map_.erase(full_name);
 
-    Delete(id);
-}
-
-void FileSystem::Delete(int id) {
     int parent_dir_id = search_map_[pwd_];
 
     Inode* dir_inode = reinterpret_cast<Inode*>(GetInodeBlockPointer(parent_dir_id));
@@ -250,6 +236,7 @@ void FileSystem::Delete(int id) {
     }
 
     ReleaseInode(id);
+    search_map_.erase(full_name);
 }
 
 

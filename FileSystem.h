@@ -1,5 +1,5 @@
 //
-// Created by yiniao on 2015/4/19.
+// Created by yiniao on 2015/5/20.
 //
 
 #ifndef FILESYSTEM_FILESYSTEM_H
@@ -33,7 +33,6 @@ public:
     int Read(const char* name);
 
     void Delete(const char* name);
-    void Delete(int id);
 
     void Cd(const char* path);
 
